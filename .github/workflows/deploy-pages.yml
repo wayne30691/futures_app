@@ -3,8 +3,8 @@ name: Build And Deploy MTX Viewer
 on:
   workflow_dispatch:
   schedule:
-    # 17:05 Asia/Taipei = 09:05 UTC
-    - cron: "5 9 * * *"
+    # 16:50 Asia/Taipei = 08:50 UTC
+    - cron: "50 8 * * *"
 
 permissions:
   contents: read
