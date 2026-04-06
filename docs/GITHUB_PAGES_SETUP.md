@@ -4,7 +4,7 @@
 
 - `.github/workflows/deploy-pages.yml`
 
-它會在每天台北時間 `17:05` 自動執行以下流程：
+它會在每天台北時間 `16:50` 自動執行以下流程：
 
 1. checkout 專案
 2. 建立 `raw/` 目錄
@@ -16,7 +16,7 @@
 
 是，這份設定和目前 repo 內的實作一致，重點如下：
 
-- 排程是 `cron: "5 9 * * *"`，也就是 `09:05 UTC = 17:05 Asia/Taipei`
+- 排程是 `cron: "50 8 * * *"`，也就是 `08:50 UTC = 16:50 Asia/Taipei`
 - workflow 產生的是 `site/`，不是 `web/`
 - 公開部署不會上傳 `raw/*.csv`
 - `scripts/build_preview_web.py` 是本機預覽用途，不在 GitHub Pages workflow 內使用
@@ -39,6 +39,6 @@
 
 ## 注意事項
 
-- 若 TAIFEX 在 `17:05` 時資料仍未完整，當天內容可能偏舊
+- 若 TAIFEX 在 `16:50` 時資料仍未完整，當天內容可能偏舊
 - 若想更保守，可把 cron 改晚，例如台北時間 `17:20` 或 `17:30`
 - `scripts/publish_raw_web.py` 會同時輸出 `web/` 與 `site/`；但 GitHub Pages 只使用 `site/`
