@@ -12,16 +12,14 @@
 
 ## Demo
 
-https://wayne30691.github.io/futures_app/
-
-![風險報酬矩陣](./assets/risk_return_matrix.png)
+`https://wayne30691.github.io/futures_app/`
 
 ## Features
 
 - 自動抓取 TAIFEX 最近 30 天期貨成交資料
 - 過濾台指小型期貨近月合約並整理成 1 分 K 資料集
 - 以前端靜態頁方式呈現，不需要後端服務
-- 透過 GitHub Actions 定時重建並部署到 GitHub Pages
+- 透過 GitHub Actions 在 `main` 推送後自動部署，並於每天固定時間定時重建 GitHub Pages
 - 公開站只發布 `site/` 內容，不公開 `raw/*.csv`
 
 ## Data Flow
@@ -93,6 +91,7 @@ futures_app/
 GitHub Pages 使用 GitHub Actions 自動部署。
 
 - workflow: [`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml)
+- trigger: push 到 `main` 後立即部署
 - schedule: 每天台灣時間 `16:50`
 - deploy target: `site/`
 

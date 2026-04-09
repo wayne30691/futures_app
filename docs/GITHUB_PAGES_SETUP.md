@@ -4,7 +4,13 @@
 
 - `.github/workflows/deploy-pages.yml`
 
-它會在每天台北時間 `16:50` 自動執行以下流程：
+它會在以下情況執行：
+
+- push 到 `main`
+- 每天台北時間 `16:50`
+- 手動點選 `Run workflow`
+
+執行時會進行以下流程：
 
 1. checkout 專案
 2. 建立 `raw/` 目錄
@@ -17,6 +23,7 @@
 是，這份設定和目前 repo 內的實作一致，重點如下：
 
 - 排程是 `cron: "50 8 * * *"`，也就是 `08:50 UTC = 16:50 Asia/Taipei`
+- 平常只要 push 到 `main`，Pages 就會重新建置，不需要等到排程時間
 - workflow 產生的是 `site/`，不是 `web/`
 - 公開部署不會上傳 `raw/*.csv`
 - `scripts/build_preview_web.py` 是本機預覽用途，不在 GitHub Pages workflow 內使用
@@ -36,6 +43,15 @@
 1. 到 GitHub 的 `Actions`
 2. 點選 `Build And Deploy MTX Viewer`
 3. 點 `Run workflow`
+
+## 為什麼 push 後頁面沒更新
+
+常見原因如下：
+
+- Pages 的 `Source` 不是 `GitHub Actions`
+- push 的分支不是 `main`
+- workflow 執行失敗，所以舊站點仍然保留
+- 看的其實是瀏覽器快取，重新整理或無痕視窗可先排除
 
 ## 注意事項
 

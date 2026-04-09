@@ -1,6 +1,9 @@
 name: Build And Deploy MTX Viewer
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
   schedule:
     # 16:50 Asia/Taipei = 08:50 UTC
