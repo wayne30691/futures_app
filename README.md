@@ -12,7 +12,7 @@
 
 ## Demo
 
-`https://wayne30691.github.io/futures_app/`
+https://wayne30691.github.io/futures_app/
 
 ## Features
 
