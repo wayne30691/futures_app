@@ -601,7 +601,7 @@
           <div id="lookback-window-note" class="full" style="color:#9fc4de;font-size:0.78rem;"></div>
             </div>
             <div class="result-box" id="stats-box">
-              <div class="result-title">統計 <span class="hint" data-tip="Avg Volatility=近N日該時段波動平均；Median=中位數；P75=75分位。Selected Stop/Target=你選的固定點數。Backtest Win Rate(direction)=命中停利/總回測數。勝率矩陣公式同樣是 Win Rate = 命中停利次數 / N；其中 N=該時段可回測天數。Resolved Win Rate=命中停利/(命中停利+命中停損)。Long/Short Win Rate=固定方向命中停利率。Backtest R/R=每筆結果換算R倍數平均。Volatility Rank=該時段在全時段波動名次。">i</span></div>
+              <div class="result-title">統計 <span class="hint" data-tip="Avg Volatility=近N日該時段波動平均；Median=中位數；P75=75分位。Selected Stop/Target=你選的固定點數。Backtest Win Rate(direction)=命中停利/總回測數，未觸及停利者不算贏。勝率矩陣公式同樣是 Win Rate = 命中停利次數 / N；其中 N=該時段可回測天數。Resolved Win Rate=命中停利/(命中停利+命中停損)。Long/Short Win Rate=固定方向命中停利率。Backtest R/R=每筆結果換算R倍數平均。Volatility Rank=該時段在全時段波動名次。">i</span></div>
               <div id="stats-content">
                 <div id="stats-lines">-</div>
               </div>
@@ -1219,30 +1219,30 @@
     }
 
     function simulateSlotTrade(slotBars, rest, stopPts, takePts, direction) {
-      if (!slotBars.length) return { rs: 0, retPct: 0 };
+      if (!slotBars.length) return { rs: 0, retPct: 0, outcome: "none" };
       const entry = slotBars[0].o;
       const open0 = slotBars[0].o;
       const dir = direction === "long" ? 1 : (direction === "short" ? -1 : (slotBars[slotBars.length - 1].c >= open0 ? 1 : -1));
       let rs = 0;
       let settledPts = 0;
+      let outcome = "timeout";
       // Rule: enter at slot start and evaluate only inside this 30-min slot.
       for (const b of slotBars) {
         if (dir > 0) {
-          if (b.l <= entry - stopPts) { rs = -1; settledPts = -stopPts; break; }
-          if (b.h >= entry + takePts) { rs = 1; settledPts = takePts; break; }
+          if (b.l <= entry - stopPts) { rs = -1; settledPts = -stopPts; outcome = "stop"; break; }
+          if (b.h >= entry + takePts) { rs = 1; settledPts = takePts; outcome = "target"; break; }
         } else {
-          if (b.h >= entry + stopPts) { rs = -1; settledPts = -stopPts; break; }
-          if (b.l <= entry - takePts) { rs = 1; settledPts = takePts; break; }
+          if (b.h >= entry + stopPts) { rs = -1; settledPts = -stopPts; outcome = "stop"; break; }
+          if (b.l <= entry - takePts) { rs = 1; settledPts = takePts; outcome = "target"; break; }
         }
       }
       if (rs === 0) {
         const closeAtEnd = slotBars[slotBars.length - 1].c;
         const rawPts = dir > 0 ? (closeAtEnd - entry) : (entry - closeAtEnd);
         settledPts = rawPts;
-        rs = rawPts > 0 ? 1 : (rawPts < 0 ? -1 : 0);
       }
       const retPct = entry ? (settledPts / entry) * 100 : 0;
-      return { rs, retPct };
+      return { rs, retPct, outcome };
     }
 
     function runAnalysis(trigger = "auto") {
@@ -1387,8 +1387,8 @@
         ["P75 Volatility", fmtNumber(p75, 2), "75分位可視為偏高波動參考。"],
         ["Selected Stop (pts)", fmtNumber(stopPts, 0), "固定停損點數。"],
         ["Selected Target (pts)", fmtNumber(takePts, 0), "固定停利點數。"],
-        [`Backtest Win Rate (${direction})`, `${fmtNumber(winRate, 2)}%`, "整體勝率，建議搭配 N 與 CI 一起看。"],
-        [`Resolved Win Rate (${direction})`, `${fmtNumber(winRateResolved, 2)}%`, "只看有命中停損/停利的樣本。"],
+        [`Backtest Win Rate (${direction})`, `${fmtNumber(winRate, 2)}%`, "整體勝率，只把命中停利的樣本算贏，建議搭配 N 與 CI 一起看。"],
+        [`Resolved Win Rate (${direction})`, `${fmtNumber(winRateResolved, 2)}%`, "只看有命中停損/停利的樣本。未觸價不計入。"],
         ["Long Win Rate", `${fmtNumber(winRateLong, 2)}%`, "固定做多時的勝率。"],
         ["Short Win Rate", `${fmtNumber(winRateShort, 2)}%`, "固定做空時的勝率。"],
         ["Backtest Reward/Risk", fmtNumber(rr, 2), "大於 0 越高越好，需搭配回撤看。"],
