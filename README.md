@@ -14,6 +14,8 @@
 
 https://wayne30691.github.io/futures_app/
 
+<img src="assets/risk_return_matrix.png">
+
 ## Features
 
 - 自動抓取 TAIFEX 最近 30 天期貨成交資料
