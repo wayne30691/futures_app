@@ -380,6 +380,40 @@
       background: rgba(12, 32, 47, 0.96);
       z-index: 1;
     }
+    .matrix-main {
+      font-weight: 700;
+      color: #f5fbff;
+      line-height: 1.15;
+    }
+    .matrix-subbar {
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 92px;
+    }
+    .matrix-subbar-track {
+      flex: 1;
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(159, 196, 222, 0.18);
+      overflow: hidden;
+      box-shadow: inset 0 0 0 1px rgba(159, 196, 222, 0.12);
+    }
+    .matrix-subbar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(110, 231, 183, 0.85), rgba(34, 211, 238, 0.95));
+    }
+    .matrix-subbar-fill.down {
+      background: linear-gradient(90deg, rgba(251, 146, 60, 0.85), rgba(248, 113, 113, 0.95));
+    }
+    .matrix-subbar-text {
+      font-size: 11px;
+      color: #d7ecfa;
+      min-width: 52px;
+      text-align: right;
+    }
     .lowrisk-tag {
       display: inline-block;
       margin-left: 6px;
@@ -487,7 +521,7 @@
         <p>小台近月 30 日統計分析，以每 30 分鐘為區間，聚焦低風險、中等報酬的期貨交易策略。</p>
       </div>
       <div class="stamp">
-        <div>更新時間 2026-04-06 17:10:51 UTC+08:00</div>
+        <div>更新時間 2026-04-10 06:32:40 UTC+08:00</div>
         <div>本機預覽請使用 python -m http.server 8080 並從 /web/ 開啟。</div>
       </div>
     </section>
@@ -658,7 +692,7 @@
 
   </div>
 
-  <script id="app-config" type="application/json">{"generated": "2026-04-06 17:10:51 UTC+08:00", "bundle": "local-web", "dataFile": "data/market_1m.json", "summary": {"files": 30, "minuteBars": 33874, "tradeRows": 8675555, "totalVolume": 11200195, "skippedRows": 0, "latestClose": 32868, "latestTime": "2026-04-03T04:59:58+08:00"}}</script>
+  <script id="app-config" type="application/json">{"generated": "2026-04-10 06:32:40 UTC+08:00", "bundle": "local-web", "dataFile": "data/market_1m.json", "summary": {"files": 30, "minuteBars": 33048, "tradeRows": 8885234, "totalVolume": 11434790, "skippedRows": 0, "latestClose": 34930, "latestTime": "2026-04-09T13:44:59+08:00"}}</script>
   <script>
     const APP = JSON.parse(document.getElementById("app-config").textContent);
     const TZ_OFFSET_SECONDS = 8 * 60 * 60;
@@ -1245,6 +1279,30 @@
       return { rs, retPct, outcome };
     }
 
+    function closeDirectionRateFromSlotData(slotData, dir) {
+      if (!slotData.length) return null;
+      let wins = 0;
+      const wantUp = dir !== "short";
+      for (const row of slotData) {
+        const slotBars = row.slotBars ?? [];
+        if (!slotBars.length) continue;
+        const entry = slotBars[0].o;
+        const closeAtEnd = slotBars[slotBars.length - 1].c;
+        if (wantUp ? (closeAtEnd > entry) : (closeAtEnd < entry)) wins += 1;
+      }
+      return (wins / slotData.length) * 100;
+    }
+
+    function renderCloseRate(rate, dirKey) {
+      const closeLabel = dirKey === "short" ? "收跌" : "收漲";
+      if (rate === null || rate === undefined) {
+        return `<div class="matrix-subbar"><div class="matrix-subbar-track"></div><div class="matrix-subbar-text">${closeLabel} -</div></div>`;
+      }
+      const pct = Math.max(0, Math.min(100, rate));
+      const fillCls = dirKey === "short" ? "matrix-subbar-fill down" : "matrix-subbar-fill";
+      return `<div class="matrix-subbar"><div class="matrix-subbar-track"><div class="${fillCls}" style="width:${pct}%;"></div></div><div class="matrix-subbar-text">${closeLabel} ${fmtNumber(rate, 1)}%</div></div>`;
+    }
+
     function runAnalysis(trigger = "auto") {
       const slotStart = Number(el("slot-select").value);
       const lookback = Number(el("lookback-select").value);
@@ -1488,6 +1546,7 @@
             const slotData = bySlotMain.get(s) ?? [];
             const slotVol = volBySlot.get(s) ?? null;
             const isLowRisk = slotVol !== null && slotVol <= lowRiskCut;
+            const closeRate = closeDirectionRateFromSlotData(slotData, dirKey);
             const cells = [];
             for (const sp of stopPointSet) {
               for (const tpv of targetPointSet) {
@@ -1496,7 +1555,8 @@
                   if (!best || wr > best.wr) best = { wr, s, sp, tpv, n: slotData.length };
                   if (isLowRisk && (!bestLowRisk || wr > bestLowRisk.wr)) bestLowRisk = { wr, s, sp, tpv, n: slotData.length };
                 }
-                cells.push(`<td style="background:${heatColor(wr)}">${wr === null ? "-" : `${fmtNumber(wr, 1)}%`}</td>`);
+                const wrText = wr === null ? "-" : `${fmtNumber(wr, 1)}%`;
+                cells.push(`<td style="background:${heatColor(wr)}"><div class="matrix-main">${wrText}</div>${renderCloseRate(closeRate, dirKey)}</td>`);
               }
             }
             const lowTag = isLowRisk ? `<span class="lowrisk-tag">低風險</span>` : "";
@@ -1511,7 +1571,7 @@
             : `<div style="margin:2px 0 4px;color:#8fd8ff;">低風險結論(${dirLabel}): 無足夠樣本。</div>`;
           return summary + lowSummary + `<div style="margin-top:6px;color:#b8d2e6;">${dirLabel} 勝率矩陣（停損/停利）</div><div class="matrix-wrap"><table class="matrix-table"><thead><tr><th>Time Slot</th>${hs}</tr></thead><tbody>${rs}</tbody></table></div>`;
         }
-        const formulaNote = `<div style="margin-bottom:6px;color:#9fc4de;">勝率公式：Win Rate = 命中停利次數 / N（N = 該時段可回測天數）。低風險定義：該時段波動 Vol 落在全時段較低 40%（Vol ≤ ${fmtNumber(lowRiskCut, 2)}）。</div>`;
+        const formulaNote = `<div style="margin-bottom:6px;color:#9fc4de;">勝率公式：Win Rate = 命中停利次數 / N（N = 該時段可回測天數）。每格第二行另顯示收盤方向比例；做多看收漲天數 / N，做空看收跌天數 / N。低風險定義：該時段波動 Vol 落在全時段較低 40%（Vol ≤ ${fmtNumber(lowRiskCut, 2)}）。</div>`;
         el("lowrisk-wrap").innerHTML = formulaNote + lowRiskHtml + matrixTable("做多", "long") + matrixTable("做空", "short");
       }
 
@@ -1523,7 +1583,7 @@
       } else {
         const lbDaysBy = new Map(lookbackSlices.map((lb) => [lb, pickLookbackDays(daysAll, lb, anchorDay)]));
         const lbMapBy = new Map(lookbackSlices.map((lb) => [lb, buildBySlotDay(lbDaysBy.get(lb) ?? [])]));
-        const headers = lookbackSlices.map((lb) => `<th>${lb}日WR</th>`).join("");
+        const headers = lookbackSlices.map((lb) => `<th>${lb}日WR/收盤率</th>`).join("");
         const sliceHeat = (v) => {
           if (v === null || v === undefined) return "transparent";
           const x = Math.max(0, Math.min(100, v)) / 100;
@@ -1535,16 +1595,24 @@
             const map = lbMapBy.get(lb);
             return winRateFromSlotData(map?.get(s) ?? [], sl, tp, sliceDirection);
           });
+          const closeRates = lookbackSlices.map((lb) => {
+            const map = lbMapBy.get(lb);
+            return closeDirectionRateFromSlotData(map?.get(s) ?? [], sliceDirection);
+          });
           const vol = volBySlot.get(s);
           const low = vol !== undefined && vol <= lowRiskCut;
           const minWr = Math.min(...wrs.filter((x) => x !== null));
           const pass = Number.isFinite(minWr) && minWr >= sliceWinTh;
-          const wrCells = wrs.map((w) => `<td style="background:${sliceHeat(w)}">${w === null ? "-" : `${fmtNumber(w, 1)}%`}</td>`).join("");
+          const wrCells = wrs.map((w, idx) => {
+            const closeRate = closeRates[idx];
+            const wrText = w === null ? "-" : `${fmtNumber(w, 1)}%`;
+            return `<td style="background:${sliceHeat(w)}"><div class="matrix-main">${wrText}</div>${renderCloseRate(closeRate, sliceDirection)}</td>`;
+          }).join("");
           const passHtml = pass ? `<span class="ok-tag">是</span>` : `<span class="no-tag">否</span>`;
           const volText = vol === undefined ? "-" : fmtNumber(vol, 2);
           return `<tr><td>${slotLabel(s)}${low ? ' <span class="lowrisk-tag">低風險</span>' : ''}<span style="color:#8fb5cd;"> (Vol:${volText})</span></td>${wrCells}<td>${passHtml}</td></tr>`;
         }).join("");
-        const note = `<div style="margin:6px 0;color:#9fc4de;">切面矩陣：direction=${sliceDirection}、SL/TP=${sl}/${tp}、門檻=${sliceWinTh}%、低風險門檻 Vol≤${fmtNumber(lowRiskCut, 2)}（與做多/做空矩陣一致）</div>`;
+        const note = `<div style="margin:6px 0;color:#9fc4de;">切面矩陣：direction=${sliceDirection}、SL/TP=${sl}/${tp}、門檻=${sliceWinTh}%、低風險門檻 Vol≤${fmtNumber(lowRiskCut, 2)}（與做多/做空矩陣一致）。每格第二行顯示該 lookback 的收盤方向比例。</div>`;
         el("slice-matrix-wrap").innerHTML = note + `<div class="matrix-wrap"><table class="matrix-table"><thead><tr><th>Time Slot</th>${headers}<th>是否達標</th></tr></thead><tbody>${rowsHtml}</tbody></table></div>`;
       }
 
