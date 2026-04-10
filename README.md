@@ -12,7 +12,9 @@
 
 ## Demo
 
-`https://wayne30691.github.io/futures_app/`
+https://wayne30691.github.io/futures_app/
+
+<img src="assets/risk_return_matrix.png">
 
 ## Features
 
@@ -56,7 +58,7 @@ python -m http.server 8080
 
 開啟：
 
-`http://127.0.0.1:8080/web/`
+'http://127.0.0.1:8080/web/'
 
 ## Repository Layout
 
