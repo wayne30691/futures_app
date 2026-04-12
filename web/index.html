@@ -385,6 +385,48 @@
       color: #f5fbff;
       line-height: 1.15;
     }
+    .matrix-mini {
+      margin-top: 3px;
+      font-size: 11px;
+      color: #d7ecfa;
+      line-height: 1.2;
+    }
+    .matrix-volbar {
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .matrix-volbar-track {
+      flex: 1;
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(159, 196, 222, 0.18);
+      overflow: hidden;
+      box-shadow: inset 0 0 0 1px rgba(159, 196, 222, 0.12);
+    }
+    .matrix-volbar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(248, 217, 78, 0.92), rgba(97, 225, 255, 0.95));
+    }
+    .matrix-volbar-text {
+      font-size: 11px;
+      color: #d7ecfa;
+      min-width: 56px;
+      text-align: right;
+    }
+    .matrix-cell-btn {
+      cursor: pointer;
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
+    }
+    .matrix-cell-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: inset 0 0 0 1px rgba(223, 245, 255, 0.35);
+    }
+    .matrix-cell-btn.active {
+      box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.7);
+    }
     .matrix-subbar {
       margin-top: 4px;
       display: flex;
@@ -431,6 +473,63 @@
     .no-tag {
       color: #ff9a9a;
       font-weight: 700;
+    }
+    .summary-card {
+      margin-top: 8px;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(138, 165, 187, 0.14);
+      background: linear-gradient(180deg, rgba(18, 45, 64, 0.92), rgba(8, 20, 29, 0.98));
+    }
+    .summary-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+    .summary-head strong {
+      font-size: 1rem;
+    }
+    .summary-meta {
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+    .summary-text {
+      color: #dff2ff;
+      line-height: 1.6;
+      font-size: 0.9rem;
+    }
+    .decision-tag {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 2px 10px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      border: 1px solid transparent;
+    }
+    .decision-tag.long {
+      color: #dffcf1;
+      background: rgba(55, 211, 154, 0.18);
+      border-color: rgba(55, 211, 154, 0.5);
+    }
+    .decision-tag.watch {
+      color: #fff5d6;
+      background: rgba(248, 217, 78, 0.18);
+      border-color: rgba(248, 217, 78, 0.48);
+    }
+    .decision-tag.skip {
+      color: #ffe0e0;
+      background: rgba(255, 107, 107, 0.18);
+      border-color: rgba(255, 107, 107, 0.45);
+    }
+    .section-note {
+      color: #9fc4de;
+      font-size: 0.8rem;
+      line-height: 1.55;
+      margin-bottom: 8px;
     }
     .tabs {
       display: flex;
@@ -518,10 +617,10 @@
     <section class="hero">
       <div>
         <h1>膽小猴子操作策略</h1>
-        <p>小台近月 30 日統計分析，以每 30 分鐘為區間，聚焦低風險、中等報酬的期貨交易策略。</p>
+        <p>小台近月 30 日統計分析，可切換 30 分鐘或 1 小時區間，聚焦低風險、中等報酬的期貨交易策略。</p>
       </div>
       <div class="stamp">
-        <div>更新時間 2026-04-10 06:32:40 UTC+08:00</div>
+        <div>更新時間 2026-04-12 03:59:14 UTC+08:00</div>
         <div>本機預覽請使用 python -m http.server 8080 並從 /web/ 開啟。</div>
       </div>
     </section>
@@ -567,9 +666,7 @@
       <aside class="panel side-panel">
         <div class="result-box">
           <div class="tabs">
-            <button type="button" class="tab-btn active" data-tab="tab-control">策略控制台</button>
-            <button type="button" class="tab-btn" data-tab="tab-slot">波動排名</button>
-            <button type="button" class="tab-btn" data-tab="tab-lowrisk">風險報酬矩陣</button>
+            <button type="button" class="tab-btn active" data-tab="tab-control">做多機會</button>
             <button type="button" class="tab-btn" data-tab="tab-calendar">財經日曆</button>
           </div>
           <div id="tab-control" class="tab-pane active">
@@ -577,18 +674,6 @@
           <label class="full">近N日截止日
             <span class="hint" data-tip="指定近N日要回推到哪一個交易日。例：選 2026-04-02 且 Lookback=5，則使用到 2026-04-02 為止往前 5 個交易日。">i</span>
             <select id="anchor-day-select"></select>
-          </label>
-          <label class="full">目標時段（半小時）
-            <span class="hint" data-tip="選你要研究的 30 分鐘時段，例如 09:00-09:30。系統會拿近 N 日同一時段做比較。">i</span>
-            <select id="slot-select"></select>
-          </label>
-          <label>Lookback
-            <span class="hint" data-tip="要往回看幾個交易日。5 日反應較快，20 日較穩定。">i</span>
-            <select id="lookback-select">
-              <option value="5">5 日（短線）</option>
-              <option value="10">10 日（平衡）</option>
-              <option value="20">20 日（穩定）</option>
-            </select>
           </label>
           <label>Session
             <span class="hint" data-tip="day 只看日盤；night 只看夜盤；all 兩者一起計算。">i</span>
@@ -598,20 +683,11 @@
               <option value="all">all（全部）</option>
             </select>
           </label>
-          <label>方向
-            <span class="hint" data-tip="auto=依時段內方向自動判斷；long=固定只做多；short=固定只做空。">i</span>
-            <select id="direction-select">
-              <option value="auto">auto（自動）</option>
-              <option value="long">long（只做多）</option>
-              <option value="short">short（只做空）</option>
-            </select>
-          </label>
-          <label>波動指標
-            <span class="hint" data-tip="range=該30分鐘最高-最低；return std=該時段相鄰收盤報酬標準差；ATR proxy=該30分鐘內每分鐘(H-L)的RMS波動。">i</span>
-            <select id="vol-select">
-              <option value="range">range（高低差）</option>
-              <option value="return_std">return std（報酬波動）</option>
-              <option value="atr_proxy">ATR proxy（30分RMS波動）</option>
+          <label>分析區間
+            <span class="hint" data-tip="可切換以 30 分鐘或 1 小時為一個統計區間。矩陣、詳細統計與顯著性都會同步使用這個設定。">i</span>
+            <select id="slot-minutes-select">
+              <option value="30">30 分鐘</option>
+              <option value="60">1 小時</option>
             </select>
           </label>
           <label>停損點數
@@ -634,57 +710,45 @@
           <div id="analyze-status" class="analyze-status"></div>
           <div id="lookback-window-note" class="full" style="color:#9fc4de;font-size:0.78rem;"></div>
             </div>
+            <div class="result-box" style="margin-top:8px;">
+              <div class="result-title">做多機會矩陣 <span class="hint" data-tip="矩陣是主體。先看熱區，再點你有興趣的格子，下面才顯示完整統計。">i</span></div>
+              <div class="mini-controls">
+                <label>切面Lookback
+                  <input id="slice-lookbacks-input" type="text" value="5,10,20" />
+                </label>
+                <label>最低勝率門檻
+                  <select id="slice-win-threshold-select">
+                    <option value="50">50%</option>
+                    <option value="60" selected>60%</option>
+                    <option value="70">70%</option>
+                  </select>
+                </label>
+                <button id="slice-refresh-btn" type="button">更新切面矩陣</button>
+              </div>
+              <div id="slice-matrix-wrap"></div>
+            </div>
+            <div class="summary-card" id="decision-summary-wrap">
+              <div class="summary-head">
+                <strong>今日決策摘要</strong>
+                <span id="decision-summary-tag" class="decision-tag watch">整理中</span>
+              </div>
+              <div id="decision-summary-text" class="summary-text">-</div>
+            </div>
             <div class="result-box" id="stats-box">
-              <div class="result-title">統計 <span class="hint" data-tip="Avg Volatility=近N日該時段波動平均；Median=中位數；P75=75分位。Selected Stop/Target=你選的固定點數。Backtest Win Rate(direction)=命中停利/總回測數，未觸及停利者不算贏。勝率矩陣公式同樣是 Win Rate = 命中停利次數 / N；其中 N=該時段可回測天數。Resolved Win Rate=命中停利/(命中停利+命中停損)。Long/Short Win Rate=固定方向命中停利率。Backtest R/R=每筆結果換算R倍數平均。Volatility Rank=該時段在全時段波動名次。">i</span></div>
+              <div class="result-title">決策統計 <span class="hint" data-tip="點選矩陣某一格後，才會顯示該時段 x lookback 的完整統計。">i</span></div>
               <div id="stats-content">
-                <div id="stats-lines">-</div>
+                <div id="stats-lines">請先點選上方矩陣的一格。</div>
               </div>
             </div>
             <div class="result-box" id="sig-box" style="margin-top:8px;">
-              <div class="result-title">統計顯著性 <span class="hint" data-tip="提供三項強化判斷：1) 勝率95%區間與二項檢定；2) 與其他時段的勝率差異檢定；3) 樣本外(訓練/測試)檢驗與bootstrap報酬區間。">i</span></div>
-              <div id="sig-lines">-</div>
+              <div class="result-title">統計顯著性 <span class="hint" data-tip="和決策統計使用同一個矩陣格子，不再分開看不同邏輯。">i</span></div>
+              <div id="sig-lines">請先點選上方矩陣的一格。</div>
             </div>
-          </div>
-          <div id="tab-slot" class="tab-pane">
-            <div class="sort-row">
-              <div class="result-title">近N日各時段波動排名與停損停利區間 <span class="hint" data-tip="依時段波動排序，並列出停損、停利與Target-Stop(可視為預估可用震幅淨值)。">i</span></div>
-              <select id="rank-sort-select">
-                <option value="desc">Volatility 高→低</option>
-                <option value="asc">Volatility 低→高</option>
-                <option value="time_asc">時間早→晚</option>
-              </select>
-            </div>
-            <div id="slot-rank-table-wrap"></div>
-          </div>
-          <div id="tab-lowrisk" class="tab-pane">
-            <div class="result-title">風險報酬矩陣 <span class="hint" data-tip="矩陣欄位是停損/停利組合（例如 100/150）。每格顯示該時段在該組合下的勝率%。分做多與做空兩張表，便於比較。">i</span></div>
-            <div id="lowrisk-wrap"></div>
-            <div class="mini-controls">
-              <label>切面Lookback
-                <input id="slice-lookbacks-input" type="text" value="5,10,20" />
-              </label>
-              <label>切面方向
-                <select id="slice-direction-select">
-                  <option value="long">long（只做多）</option>
-                  <option value="short">short（只做空）</option>
-                  <option value="auto">auto（自動）</option>
-                </select>
-              </label>
-              <label>最低勝率門檻
-                <select id="slice-win-threshold-select">
-                  <option value="50">50%</option>
-                  <option value="60" selected>60%</option>
-                  <option value="70">70%</option>
-                </select>
-              </label>
-              <button id="slice-refresh-btn" type="button">更新切面矩陣</button>
-            </div>
-            <div id="slice-matrix-wrap"></div>
           </div>
           <div id="tab-calendar" class="tab-pane">
             <div class="result-title">財經日曆</div>
-            <div style="margin-bottom:6px;color:#9fc4de;">若下方未顯示，請直接開啟：<a href="https://www.macromicro.me/calendar#macro" target="_blank" rel="noopener noreferrer">https://www.macromicro.me/calendar#macro</a></div>
-            <iframe class="calendar-frame" src="https://www.macromicro.me/calendar#macro" loading="lazy" referrerpolicy="no-referrer"></iframe>
+            <div style="margin-bottom:6px;color:#9fc4de;">對方拒絕嵌入，這裡只保留連結：</div>
+            <div><a href="https://www.macromicro.me/calendar#macro" target="_blank" rel="noopener noreferrer">https://www.macromicro.me/calendar#macro</a></div>
           </div>
         </div>
       </aside>
@@ -692,7 +756,7 @@
 
   </div>
 
-  <script id="app-config" type="application/json">{"generated": "2026-04-10 06:32:40 UTC+08:00", "bundle": "local-web", "dataFile": "data/market_1m.json", "summary": {"files": 30, "minuteBars": 33048, "tradeRows": 8885234, "totalVolume": 11434790, "skippedRows": 0, "latestClose": 34930, "latestTime": "2026-04-09T13:44:59+08:00"}}</script>
+  <script id="app-config" type="application/json">{"generated": "2026-04-12 03:59:14 UTC+08:00", "bundle": "local-web", "dataFile": "data/market_1m.json", "summary": {"files": 30, "minuteBars": 33048, "tradeRows": 8885234, "totalVolume": 11434790, "skippedRows": 0, "latestClose": 34930, "latestTime": "2026-04-09T13:44:59+08:00"}}</script>
   <script>
     const APP = JSON.parse(document.getElementById("app-config").textContent);
     const TZ_OFFSET_SECONDS = 8 * 60 * 60;
@@ -725,6 +789,7 @@
       rangeKey: "5d",
       startTs: null,
       endTs: null,
+      selectedMatrix: null,
       charts: {},
     };
 
@@ -1172,47 +1237,29 @@
       return (std(rs) ?? 0) * 10000;
     }
 
-    function inHalfHourSlot(minute, start) {
-      const end = (start + 30) % 1440;
+    function inTimeSlot(minute, start, slotMinutes) {
+      const end = (start + slotMinutes) % 1440;
       if (start < end) return minute >= start && minute < end;
       return minute >= start || minute < end;
     }
 
-    function slotLabel(start) {
+    function slotLabel(start, slotMinutes = 30) {
       const sh = Math.floor(start / 60), sm = start % 60;
-      const e = (start + 30) % 1440;
+      const e = (start + slotMinutes) % 1440;
       const eh = Math.floor(e / 60), em = e % 60;
       return `${String(sh).padStart(2, "0")}:${String(sm).padStart(2, "0")}-${String(eh).padStart(2, "0")}:${String(em).padStart(2, "0")}`;
     }
 
-    function getSessionSlotStarts(session) {
+    function getSessionSlotStarts(session, slotMinutes = 30) {
       const slots = [];
       if (session === "day" || session === "all") {
-        for (let s = 8 * 60 + 45; s < 13 * 60 + 45; s += 30) slots.push(s); // 08:45-13:15
+        for (let s = 8 * 60 + 45; s < 13 * 60 + 45; s += slotMinutes) slots.push(s);
       }
       if (session === "night" || session === "all") {
-        for (let s = 15 * 60; s <= 23 * 60 + 30; s += 30) slots.push(s); // 15:00-23:30
-        for (let s = 0; s <= 4 * 60 + 30; s += 30) slots.push(s); // 00:00-04:30
+        for (let s = 15 * 60; s <= 23 * 60 + (60 - slotMinutes); s += slotMinutes) slots.push(s);
+        for (let s = 0; s <= 4 * 60 + (60 - slotMinutes); s += slotMinutes) slots.push(s);
       }
       return [...new Set(slots)].sort((a, b) => a - b);
-    }
-
-    function refreshSlotOptions() {
-      const session = el("session-select")?.value ?? "all";
-      const slotSel = el("slot-select");
-      if (!slotSel) return;
-      const keep = Number(slotSel.value);
-      const starts = getSessionSlotStarts(session);
-      slotSel.innerHTML = "";
-      for (const s of starts) {
-        const opt = document.createElement("option");
-        opt.value = String(s);
-        opt.textContent = slotLabel(s);
-        slotSel.appendChild(opt);
-      }
-      if (starts.includes(keep)) slotSel.value = String(keep);
-      else if (starts.includes(540)) slotSel.value = "540";
-      else if (starts.length) slotSel.value = String(starts[0]);
     }
 
     function getTradeDaysBySession(sessionKey) {
@@ -1253,7 +1300,7 @@
     }
 
     function simulateSlotTrade(slotBars, rest, stopPts, takePts, direction) {
-      if (!slotBars.length) return { rs: 0, retPct: 0, outcome: "none" };
+      if (!slotBars.length) return { rs: 0, retPct: 0, settledPts: 0, outcome: "none" };
       const entry = slotBars[0].o;
       const open0 = slotBars[0].o;
       const dir = direction === "long" ? 1 : (direction === "short" ? -1 : (slotBars[slotBars.length - 1].c >= open0 ? 1 : -1));
@@ -1276,7 +1323,52 @@
         settledPts = rawPts;
       }
       const retPct = entry ? (settledPts / entry) * 100 : 0;
-      return { rs, retPct, outcome };
+      return { rs, retPct, settledPts, outcome };
+    }
+
+    function classifyConfidence(bestEv, bestWr, gap, n, minSamples, strongSamples) {
+      if (bestEv > 0 && bestWr >= 57 && gap >= 8 && n >= strongSamples) return { key: "high", label: "High" };
+      if (bestEv > 0 && bestWr >= 53 && gap >= 3 && n >= minSamples) return { key: "medium", label: "Medium" };
+      return { key: "low", label: "Low" };
+    }
+
+    function classifyWindow(longEv, shortEv, longWr, shortWr, n, minSamples, strongSamples) {
+      if (n >= minSamples && longEv > 0 && longWr >= 55 && longEv > shortEv) {
+        const gap = longEv - shortEv;
+        return {
+          actionKey: "long",
+          actionLabel: "Long Candidate",
+          bias: "Long",
+          bestEv: longEv,
+          bestWr: longWr,
+          gap,
+          confidence: classifyConfidence(longEv, longWr, gap, n, minSamples, strongSamples)
+        };
+      }
+      if (n >= minSamples && shortEv > 0 && shortWr >= 55 && shortEv > longEv) {
+        const gap = shortEv - longEv;
+        return {
+          actionKey: "watch",
+          actionLabel: "Short Candidate",
+          bias: "Short",
+          bestEv: shortEv,
+          bestWr: shortWr,
+          gap,
+          confidence: classifyConfidence(shortEv, shortWr, gap, n, minSamples, strongSamples)
+        };
+      }
+      const neutralEv = Math.max(longEv, shortEv);
+      const neutralWr = longEv >= shortEv ? longWr : shortWr;
+      const neutralGap = Math.abs(longEv - shortEv);
+      return {
+        actionKey: "skip",
+        actionLabel: "No Trade",
+        bias: "Neutral",
+        bestEv: neutralEv,
+        bestWr: neutralWr,
+        gap: neutralGap,
+        confidence: classifyConfidence(neutralEv, neutralWr, neutralGap, n, minSamples, strongSamples)
+      };
     }
 
     function closeDirectionRateFromSlotData(slotData, dir) {
@@ -1304,17 +1396,20 @@
     }
 
     function runAnalysis(trigger = "auto") {
-      const slotStart = Number(el("slot-select").value);
-      const lookback = Number(el("lookback-select").value);
       const session = el("session-select").value;
+      const slotMinutes = Number(el("slot-minutes-select")?.value || 30);
+      const selectedMatrixSlot = state.selectedMatrix?.slot;
+      const selectedMatrixLookback = state.selectedMatrix?.lookback;
+      const slotStart = Number.isFinite(selectedMatrixSlot) ? selectedMatrixSlot : getSessionSlotStarts(session, slotMinutes)[0];
+      const lookback = Number.isFinite(selectedMatrixLookback) ? selectedMatrixLookback : 20;
       const anchorDay = el("anchor-day-select")?.value ?? "";
-      const direction = el("direction-select").value;
-      const mode = el("vol-select").value;
+      const direction = "long";
+      const mode = "range";
       const sl = Number(el("sl-select").value);
       const tp = Number(el("tp-select").value);
-      const stopPointSet = [100, 150, 200];
-      const targetPointSet = [100, 150, 200];
-      const slotStarts = getSessionSlotStarts(session);
+      const slotStarts = getSessionSlotStarts(session, slotMinutes);
+      const minSamples = Math.max(3, Math.ceil(lookback * 0.6));
+      const strongSamples = Math.max(minSamples, Math.ceil(lookback * 0.85));
 
       const grouped = new Map();
       for (const b of state.rawBars.map(enrichBar)) {
@@ -1341,7 +1436,7 @@
           const arr = [];
           for (const d of dayList) {
             const bars = grouped.get(d) ?? [];
-            const slotBars = bars.filter((b) => inHalfHourSlot(minuteOfBar(b), s));
+            const slotBars = bars.filter((b) => inTimeSlot(minuteOfBar(b), s, slotMinutes));
             if (!slotBars.length) continue;
             const rest = bars.filter((b) => b.t > slotBars[slotBars.length - 1].t);
             arr.push({ slotBars, rest });
@@ -1370,7 +1465,7 @@
       const rows = [];
       for (const d of days) {
         const bars = grouped.get(d) ?? [];
-        const slotBars = bars.filter((b) => inHalfHourSlot(minuteOfBar(b), slotStart));
+        const slotBars = bars.filter((b) => inTimeSlot(minuteOfBar(b), slotStart, slotMinutes));
         if (!slotBars.length) continue;
         const m = metricFromBars(slotBars, mode);
         const vol = slotBars.reduce((a, b) => a + b.v, 0);
@@ -1421,7 +1516,7 @@
       for (const s of slotStarts) {
         const svals = [];
         for (const d of days) {
-          const bars = (grouped.get(d) ?? []).filter((b) => inHalfHourSlot(minuteOfBar(b), s));
+          const bars = (grouped.get(d) ?? []).filter((b) => inTimeSlot(minuteOfBar(b), s, slotMinutes));
           if (!bars.length) continue;
           const m = metricFromBars(bars, mode);
           if (m !== null) svals.push(m);
@@ -1430,7 +1525,7 @@
         const a = svals.reduce((x, y) => x + y, 0) / svals.length;
         slotRanks.push({ s, avg: a, stop: sl, target: tp });
       }
-      const rankSort = el("rank-sort-select")?.value ?? "desc";
+      const rankSort = "ev_desc";
       if (rankSort === "time_asc") {
         slotRanks.sort((a, b) => a.s - b.s);
       } else {
@@ -1439,35 +1534,17 @@
       const rankIdx = slotRanks.findIndex((x) => x.s === slotStart);
 
       const rankText = rankIdx >= 0 ? `${rankIdx + 1} / ${slotRanks.length}` : "-";
-      const statRows = [
-        ["Avg Volatility", fmtNumber(avg, 2), "數值越大代表該時段波動越大。"],
-        ["Median Volatility", fmtNumber(med, 2), "中位數可降低極端值影響。"],
-        ["P75 Volatility", fmtNumber(p75, 2), "75分位可視為偏高波動參考。"],
-        ["Selected Stop (pts)", fmtNumber(stopPts, 0), "固定停損點數。"],
-        ["Selected Target (pts)", fmtNumber(takePts, 0), "固定停利點數。"],
-        [`Backtest Win Rate (${direction})`, `${fmtNumber(winRate, 2)}%`, "整體勝率，只把命中停利的樣本算贏，建議搭配 N 與 CI 一起看。"],
-        [`Resolved Win Rate (${direction})`, `${fmtNumber(winRateResolved, 2)}%`, "只看有命中停損/停利的樣本。未觸價不計入。"],
-        ["Long Win Rate", `${fmtNumber(winRateLong, 2)}%`, "固定做多時的勝率。"],
-        ["Short Win Rate", `${fmtNumber(winRateShort, 2)}%`, "固定做空時的勝率。"],
-        ["Backtest Reward/Risk", fmtNumber(rr, 2), "大於 0 越高越好，需搭配回撤看。"],
-        ["Volatility Rank", rankText, "名次越前通常波動越大。"],
-        ["Avg Volume", fmtNumber(volAvg, 0), "成交量高通常流動性較好。"],
-        ["False Breakout Rate", `${fmtNumber(fakeRate, 2)}%`, "越低越好。"],
-        ["Expansion Continuation", `${fmtNumber(expRate, 2)}%`, "越高代表波動延續機率較高。"],
-      ];
-      const statHtml = statRows.map((r) => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join("");
-      el("stats-lines").innerHTML = `<table class="stat-table"><thead><tr><th>指標</th><th>數據</th><th>判讀</th></tr></thead><tbody>${statHtml}</tbody></table>`;
-
       const maxAvg = slotRanks.reduce((m, x) => Math.max(m, x.avg), 0) || 1;
-      const rankDisplay = rankSort === "time_asc" ? slotRanks : slotRanks.slice(0, 16);
-      const rankRows = rankDisplay.map((r) => {
+      const rankRows = slotRanks.map((r) => {
         const w = Math.max(2, Math.round((r.avg / maxAvg) * 100));
         const ts = r.target - r.stop;
-        return `<tr><td>${slotLabel(r.s)}</td><td><div class="bar-wrap"><div class="bar-fill" style="width:${w}%"></div><div class="bar-value">${fmtNumber(r.avg, 2)}</div></div></td><td>${fmtNumber(r.stop, 0)}</td><td>${fmtNumber(r.target, 0)}</td><td>${fmtNumber(ts, 0)}</td></tr>`;
+        return `<tr><td>${slotLabel(r.s, slotMinutes)}</td><td><div class="bar-wrap"><div class="bar-fill" style="width:${w}%"></div><div class="bar-value">${fmtNumber(r.avg, 2)}</div></div></td><td>${fmtNumber(r.stop, 0)}</td><td>${fmtNumber(r.target, 0)}</td><td>${fmtNumber(ts, 0)}</td></tr>`;
       }).join("");
-      el("slot-rank-table-wrap").innerHTML = `<table class="rank-table"><thead><tr><th>Time Slot</th><th>Volatility</th><th>Stop</th><th>Target</th><th>Target-Stop</th></tr></thead><tbody>${rankRows}</tbody></table>`;
+      if (el("slot-rank-table-wrap")) {
+        el("slot-rank-table-wrap").innerHTML = `<table class="rank-table"><thead><tr><th>Time Slot</th><th>Volatility</th><th>Stop</th><th>Target</th><th>Target-Stop</th></tr></thead><tbody>${rankRows}</tbody></table>`;
+      }
 
-      const returnRanks = [];
+      const opportunityRanks = [];
       for (const s of slotStarts) {
         const slotData = bySlotMain.get(s) ?? [];
         const trialsAuto = trialsFromSlotData(slotData, sl, tp, "auto");
@@ -1477,150 +1554,210 @@
         const avgAuto = trialsAuto.reduce((a, b) => a + b.retPct, 0) / trialsAuto.length;
         const avgLong = trialsLong.reduce((a, b) => a + b.retPct, 0) / trialsLong.length;
         const avgShort = trialsShort.reduce((a, b) => a + b.retPct, 0) / trialsShort.length;
+        const evLongPts = trialsLong.reduce((a, b) => a + b.settledPts, 0) / trialsLong.length;
+        const evShortPts = trialsShort.reduce((a, b) => a + b.settledPts, 0) / trialsShort.length;
         const wrAuto = trialsAuto.filter((x) => x.rs > 0).length / trialsAuto.length * 100;
         const wrLong = trialsLong.filter((x) => x.rs > 0).length / trialsLong.length * 100;
         const wrShort = trialsShort.filter((x) => x.rs > 0).length / trialsShort.length * 100;
-        const score = direction === "long" ? avgLong : (direction === "short" ? avgShort : avgAuto);
-        returnRanks.push({ s, score, avgAuto, avgLong, avgShort, wrAuto, wrLong, wrShort, rr: sl > 0 ? tp / sl : 0, n: trialsAuto.length });
+        const tpFirstLong = trialsLong.filter((x) => x.outcome === "target").length / trialsLong.length * 100;
+        const slFirstLong = trialsLong.filter((x) => x.outcome === "stop").length / trialsLong.length * 100;
+        const tpFirstShort = trialsShort.filter((x) => x.outcome === "target").length / trialsShort.length * 100;
+        const slFirstShort = trialsShort.filter((x) => x.outcome === "stop").length / trialsShort.length * 100;
+        const volMetric = slotRanks.find((x) => x.s === s)?.avg ?? null;
+        const verdict = classifyWindow(evLongPts, evShortPts, wrLong, wrShort, trialsLong.length, minSamples, strongSamples);
+        opportunityRanks.push({
+          s,
+          avgAuto,
+          avgLong,
+          avgShort,
+          evLongPts,
+          evShortPts,
+          wrAuto,
+          wrLong,
+          wrShort,
+          tpFirstLong,
+          slFirstLong,
+          tpFirstShort,
+          slFirstShort,
+          rr: sl > 0 ? tp / sl : 0,
+          n: trialsAuto.length,
+          vol: volMetric,
+          verdict
+        });
       }
-      returnRanks.sort((a, b) => b.score - a.score);
-      const topSlots = returnRanks.slice(0, 3).map((x) => slotLabel(x.s)).join("、");
-      const retRows = returnRanks.slice(0, 12).map((r, i) =>
-        `<tr><td>${i + 1}</td><td>${slotLabel(r.s)}</td><td>${fmtNumber(r.avgLong, 2)}%</td><td>${fmtNumber(r.avgShort, 2)}%</td><td>${fmtNumber(r.wrLong, 2)}%</td><td>${fmtNumber(r.wrShort, 2)}%</td><td>${fmtNumber(r.rr, 2)}</td><td>${r.n}</td></tr>`
-      ).join("");
-      if (el("return-rank-wrap")) {
-        el("return-rank-wrap").innerHTML = returnRanks.length
-          ? `<div style="margin-bottom:6px;color:#b8d2e6;">建議優先操作區間 (${direction}): <b>${topSlots || "-"}</b></div><table class="rank-table"><thead><tr><th>#</th><th>Time Slot</th><th>AvgRet L</th><th>AvgRet S</th><th>Win L</th><th>Win S</th><th>R/R</th><th>N</th></tr></thead><tbody>${retRows}</tbody></table>`
-          : `<div style="color:#b8d2e6;">資料不足，無法產生回測排名。</div>`;
-      }
-
-      const volBySlot = new Map(slotRanks.map((x) => [x.s, x.avg]));
-      const lowRiskCut = percentile(slotRanks.map((x) => x.avg), 0.4) ?? 0;
-      const merged = returnRanks
-        .map((r) => {
-          const vol = volBySlot.get(r.s);
-          if (vol === undefined) return null;
-          const retSel = direction === "long" ? r.avgLong : (direction === "short" ? r.avgShort : r.avgAuto);
-          const winSel = direction === "long" ? r.wrLong : (direction === "short" ? r.wrShort : r.wrAuto);
-          return { s: r.s, vol, ret: retSel, win: winSel, stop: sl, target: tp, n: r.n };
-        })
-        .filter((x) => x !== null);
-
-      if (!merged.length) {
-        el("lowrisk-wrap").innerHTML = `<div style="color:#b8d2e6;">資料不足，無法產生低風險高報酬候選。</div>`;
+      if (rankSort === "time_asc") {
+        opportunityRanks.sort((a, b) => a.s - b.s);
+      } else if (rankSort === "tp_desc") {
+        opportunityRanks.sort((a, b) => b.tpFirstLong - a.tpFirstLong || b.evLongPts - a.evLongPts);
       } else {
-        const vols = merged.map((x) => x.vol);
-        const rets = merged.map((x) => x.ret);
-        const wins = merged.map((x) => x.win);
-        const minVol = Math.min(...vols), maxVol = Math.max(...vols);
-        const minRet = Math.min(...rets), maxRet = Math.max(...rets);
-        const minWin = Math.min(...wins), maxWin = Math.max(...wins);
-        const p60Vol = percentile(vols, 0.6) ?? maxVol;
-        const norm = (v, lo, hi) => hi <= lo ? 0.5 : (v - lo) / (hi - lo);
-        const candidates = merged
-          .filter((x) => x.vol <= p60Vol && x.win > 50)
-          .map((x) => {
-            const riskNorm = norm(x.vol, minVol, maxVol);
-            const retNorm = norm(x.ret, minRet, maxRet);
-            const winNorm = norm(x.win, minWin, maxWin);
-            const score2 = 0.5 * retNorm + 0.3 * winNorm + 0.2 * (1 - riskNorm);
-            return { ...x, score2 };
-          })
-          .sort((a, b) => b.score2 - a.score2)
-          .slice(0, 8);
-        const lowRiskHtml = "";
+        opportunityRanks.sort((a, b) => b.verdict.bestEv - a.verdict.bestEv || b.verdict.bestWr - a.verdict.bestWr);
+      }
 
-        function heatColor(v) {
-          if (v === null || v === undefined) return "transparent";
-          const x = Math.max(0, Math.min(100, v)) / 100;
-          const a = 0.12 + x * 0.45;
-          return `rgba(89,216,255,${a})`;
+      const topLongSlots = opportunityRanks.filter((x) => x.verdict.actionLabel === "Long Candidate").slice(0, 2);
+      const topShortSlots = opportunityRanks.filter((x) => x.verdict.actionLabel === "Short Candidate").slice(0, 2);
+      const avoidSlots = opportunityRanks.filter((x) => x.verdict.actionLabel === "No Trade").slice(0, 4);
+      const selectedOpportunity = opportunityRanks.find((x) => x.s === slotStart) ?? null;
+      const selectedVerdict = selectedOpportunity ? selectedOpportunity.verdict : {
+        actionKey: "skip",
+        actionLabel: "No Trade",
+        bias: "Neutral",
+        bestEv: 0,
+        bestWr: 0,
+        gap: 0,
+        confidence: { key: "low", label: "Low" }
+      };
+
+      const hasDetailSelection = !!state.selectedMatrix;
+      if (hasDetailSelection) {
+        const statRows = [
+          ["Selected Slice", `${slotLabel(slotStart, slotMinutes)} | ${lookback}日 | ${slotMinutes}分區間`, "這就是你剛剛點選的矩陣格子。"],
+          ["Long Expected Value", selectedOpportunity ? `${fmtNumber(selectedOpportunity.evLongPts, 1)} 點` : "-", "固定做多下每筆平均點數。"],
+          ["Long Win Rate", `${fmtNumber(winRateLong, 2)}%`, "勝率大於 50% 才有做多基礎。"],
+          ["Long TP-first", selectedOpportunity ? `${fmtNumber(selectedOpportunity.tpFirstLong, 2)}%` : "-", "先碰停利的比例。"],
+          ["Long SL-first", selectedOpportunity ? `${fmtNumber(selectedOpportunity.slFirstLong, 2)}%` : "-", "先碰停損比例。"],
+          ["Short Expected Value", selectedOpportunity ? `${fmtNumber(selectedOpportunity.evShortPts, 1)} 點` : "-", "同時列出做空表現，避免單邊誤判。"],
+          ["Bias / Action", selectedOpportunity ? `${selectedOpportunity.verdict.bias} / ${selectedOpportunity.verdict.actionLabel}` : "-", "這一格在目前規則下的方向判斷。"],
+          ["Confidence", selectedOpportunity ? selectedOpportunity.verdict.confidence.label : "-", "用 EV、勝率、方向 gap、樣本數做分級。"],
+          ["Selected Stop / Target", `${fmtNumber(stopPts, 0)} / ${fmtNumber(takePts, 0)}`, "目前採用的固定停損停利點數。"],
+          ["Resolved Win Rate", `${fmtNumber(winRateResolved, 2)}%`, "只看已命中 TP/SL 的樣本。"],
+          ["Volatility Rank", rankText, "保留作為可達性與風險輔助。"],
+          ["Avg Volatility", fmtNumber(avg, 2), "可用來判斷 100 點是否容易走到。"],
+          ["Avg Volume", fmtNumber(volAvg, 0), "流動性輔助參考。"],
+          ["False Breakout Rate", `${fmtNumber(fakeRate, 2)}%`, "越低越好。"],
+          ["Expansion Continuation", `${fmtNumber(expRate, 2)}%`, "越高代表波動延續機率較高。"],
+        ];
+        const statHtml = statRows.map((r) => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join("");
+        el("stats-lines").innerHTML = `<table class="stat-table"><thead><tr><th>指標</th><th>數據</th><th>判讀</th></tr></thead><tbody>${statHtml}</tbody></table>`;
+      } else {
+        el("stats-lines").innerHTML = "請先點選上方矩陣的一格。";
+      }
+
+      const summaryTag = el("decision-summary-tag");
+      const summaryText = el("decision-summary-text");
+      if (summaryTag) {
+        summaryTag.className = `decision-tag ${selectedVerdict.actionKey}`;
+        summaryTag.textContent = selectedVerdict.actionLabel;
+      }
+      if (summaryText) {
+        const reasonBits = [];
+        const longText = topLongSlots.length ? topLongSlots.map((x) => slotLabel(x.s, slotMinutes)).join("、") : "無";
+        const shortText = topShortSlots.length ? topShortSlots.map((x) => slotLabel(x.s, slotMinutes)).join("、") : "無";
+        const avoidText = avoidSlots.length ? avoidSlots.map((x) => slotLabel(x.s, slotMinutes)).join("、") : "無";
+        reasonBits.push(`<b>Tomorrow Focus</b><br/>Long Candidate: <b>${longText}</b><br/>Short Candidate: <b>${shortText}</b><br/>Avoid: <b>${avoidText}</b>`);
+        if (hasDetailSelection && selectedOpportunity) {
+          reasonBits.push(`目前選定時段 <b>${slotLabel(selectedOpportunity.s, slotMinutes)}</b> 判定為 <b>${selectedOpportunity.verdict.actionLabel}</b>，Bias=<b>${selectedOpportunity.verdict.bias}</b>，最佳方向 EV=<b>${fmtNumber(selectedOpportunity.verdict.bestEv, 1)} 點</b>，勝率=<b>${fmtNumber(selectedOpportunity.verdict.bestWr, 1)}%</b>，Confidence=<b>${selectedOpportunity.verdict.confidence.label}</b>。`);
+        } else {
+          reasonBits.push(`先從上方矩陣找熱區；點一格之後，下面才會顯示那個時段 x lookback 的完整統計。`);
         }
-        function matrixTable(dirLabel, dirKey) {
-          const comboHeaders = [];
-          for (const sp of stopPointSet) for (const tpv of targetPointSet) comboHeaders.push(`${sp}/${tpv}`);
-          const hs = comboHeaders.map((h) => `<th>${h}</th>`).join("");
-          let best = null;
-          let bestLowRisk = null;
-          const rs = slotStarts.map((s) => {
-            const slotData = bySlotMain.get(s) ?? [];
-            const slotVol = volBySlot.get(s) ?? null;
-            const isLowRisk = slotVol !== null && slotVol <= lowRiskCut;
-            const closeRate = closeDirectionRateFromSlotData(slotData, dirKey);
-            const cells = [];
-            for (const sp of stopPointSet) {
-              for (const tpv of targetPointSet) {
-                const wr = winRateFromSlotData(slotData, sp, tpv, dirKey);
-                if (wr !== null) {
-                  if (!best || wr > best.wr) best = { wr, s, sp, tpv, n: slotData.length };
-                  if (isLowRisk && (!bestLowRisk || wr > bestLowRisk.wr)) bestLowRisk = { wr, s, sp, tpv, n: slotData.length };
-                }
-                const wrText = wr === null ? "-" : `${fmtNumber(wr, 1)}%`;
-                cells.push(`<td style="background:${heatColor(wr)}"><div class="matrix-main">${wrText}</div>${renderCloseRate(closeRate, dirKey)}</td>`);
-              }
-            }
-            const lowTag = isLowRisk ? `<span class="lowrisk-tag">低風險</span>` : "";
-            const volText = slotVol === null ? "-" : fmtNumber(slotVol, 2);
-            return `<tr><td>${slotLabel(s)} ${lowTag}<span style="color:#8fb5cd;"> (Vol:${volText})</span></td>${cells.join("")}</tr>`;
-          }).join("");
-          const summary = best
-            ? `<div style="margin:4px 0 2px;color:#9fc4de;">結論(${dirLabel}): 近${lookback}日最佳為 <b>${slotLabel(best.s)}</b> + SL/TP <b>${best.sp}/${best.tpv}</b>，勝率 <b>${fmtNumber(best.wr, 1)}%</b> (N=${best.n})</div>`
-            : `<div style="margin:4px 0 2px;color:#9fc4de;">結論(${dirLabel}): 資料不足。</div>`;
-          const lowSummary = bestLowRisk
-            ? `<div style="margin:2px 0 4px;color:#8fd8ff;">低風險結論(${dirLabel}): <b>${slotLabel(bestLowRisk.s)}</b> + SL/TP <b>${bestLowRisk.sp}/${bestLowRisk.tpv}</b>，勝率 <b>${fmtNumber(bestLowRisk.wr, 1)}%</b> (N=${bestLowRisk.n})</div>`
-            : `<div style="margin:2px 0 4px;color:#8fd8ff;">低風險結論(${dirLabel}): 無足夠樣本。</div>`;
-          return summary + lowSummary + `<div style="margin-top:6px;color:#b8d2e6;">${dirLabel} 勝率矩陣（停損/停利）</div><div class="matrix-wrap"><table class="matrix-table"><thead><tr><th>Time Slot</th>${hs}</tr></thead><tbody>${rs}</tbody></table></div>`;
-        }
-        const formulaNote = `<div style="margin-bottom:6px;color:#9fc4de;">勝率公式：Win Rate = 命中停利次數 / N（N = 該時段可回測天數）。每格第二行另顯示收盤方向比例；做多看收漲天數 / N，做空看收跌天數 / N。低風險定義：該時段波動 Vol 落在全時段較低 40%（Vol ≤ ${fmtNumber(lowRiskCut, 2)}）。</div>`;
-        el("lowrisk-wrap").innerHTML = formulaNote + lowRiskHtml + matrixTable("做多", "long") + matrixTable("做空", "short");
+        reasonBits.push(`判斷規則：Long Candidate = Long EV > 0、Long 勝率 >= 55%、Long EV > Short EV、樣本數 >= ${minSamples}；Short Candidate 規則對稱；其餘為 No Trade。`);
+        reasonBits.push(`執行上建議只看排名前 2 名的候選時段，若當天沒有候選就休息。`);
+        summaryText.innerHTML = reasonBits.join("<br/>");
+      }
+
+      const decisionRows = opportunityRanks.slice(0, 12).map((r) => {
+        return `<tr><td>${slotLabel(r.s, slotMinutes)}</td><td>${r.verdict.bias}</td><td>${fmtNumber(r.verdict.bestEv, 1)}</td><td>${fmtNumber(r.verdict.bestWr, 1)}%</td><td>${r.n}</td><td>${r.verdict.confidence.label}</td><td><span class="decision-tag ${r.verdict.actionKey}">${r.verdict.actionLabel}</span></td></tr>`;
+      }).join("");
+      if (el("decision-rank-table-wrap")) {
+        el("decision-rank-table-wrap").innerHTML = opportunityRanks.length
+          ? `<table class="rank-table"><thead><tr><th>Time Slot</th><th>Bias</th><th>EV (pts)</th><th>Win Rate</th><th>Samples</th><th>Confidence</th><th>Action</th></tr></thead><tbody>${decisionRows}</tbody></table>`
+          : `<div style="color:#b8d2e6;">資料不足，無法產生做多機會排名。</div>`;
+      }
+
+      const compareRows = opportunityRanks.slice(0, 12).map((r) => {
+        return `<tr><td>${slotLabel(r.s, slotMinutes)}</td><td>${fmtNumber(r.evLongPts, 1)}</td><td>${fmtNumber(r.evShortPts, 1)}</td><td>${fmtNumber(r.wrLong, 1)}%</td><td>${fmtNumber(r.wrShort, 1)}%</td><td>${fmtNumber(r.tpFirstLong, 1)}% / ${fmtNumber(r.tpFirstShort, 1)}%</td><td>${r.verdict.bias}</td></tr>`;
+      }).join("");
+      if (el("direction-compare-wrap")) {
+        el("direction-compare-wrap").innerHTML = opportunityRanks.length
+          ? `<table class="rank-table"><thead><tr><th>Time Slot</th><th>Long EV</th><th>Short EV</th><th>Win L</th><th>Win S</th><th>TP-first L/S</th><th>Bias</th></tr></thead><tbody>${compareRows}</tbody></table>`
+          : `<div style="color:#b8d2e6;">資料不足，無法產生方向對照。</div>`;
       }
 
       const lookbackSlices = parseLookbackList(el("slice-lookbacks-input")?.value || "5,10,20");
       const sliceWinTh = Number(el("slice-win-threshold-select")?.value || 60);
-      const sliceDirection = el("slice-direction-select")?.value || direction;
+      const sliceDirection = "long";
       if (!lookbackSlices.length) {
         el("slice-matrix-wrap").innerHTML = `<div style="color:#b8d2e6;">請輸入有效切面（例如 5,10,20）。</div>`;
       } else {
         const lbDaysBy = new Map(lookbackSlices.map((lb) => [lb, pickLookbackDays(daysAll, lb, anchorDay)]));
         const lbMapBy = new Map(lookbackSlices.map((lb) => [lb, buildBySlotDay(lbDaysBy.get(lb) ?? [])]));
-        const headers = lookbackSlices.map((lb) => `<th>${lb}日WR/收盤率</th>`).join("");
-        const sliceHeat = (v) => {
-          if (v === null || v === undefined) return "transparent";
-          const x = Math.max(0, Math.min(100, v)) / 100;
-          const a = 0.10 + x * 0.40;
-          return `rgba(89,216,255,${a})`;
+        const headers = lookbackSlices.map((lb) => `<th>${lb}日切面</th>`).join("");
+        const sliceHeat = (ev, wr, tpFirst) => {
+          if (ev === null || wr === null) return "transparent";
+          const wrScore = Math.max(0, Math.min(1, (wr - 45) / 20));
+          const evScore = Math.max(-1, Math.min(1, ev / Math.max(1, tp)));
+          const tpScore = Math.max(0, Math.min(1, (tpFirst - 30) / 30));
+          if (evScore < 0) {
+            const a = 0.12 + Math.abs(evScore) * 0.35;
+            return `rgba(255,107,107,${a})`;
+          }
+          const strength = 0.45 * wrScore + 0.35 * Math.max(0, evScore) + 0.20 * tpScore;
+          const a = 0.14 + strength * 0.50;
+          return `rgba(55,211,154,${a})`;
         };
-        const rowsHtml = slotStarts.map((s) => {
-          const wrs = lookbackSlices.map((lb) => {
+        const sliceSummary = [];
+        const precomputed = slotStarts.map((s) => {
+          const statsByLookback = lookbackSlices.map((lb) => {
             const map = lbMapBy.get(lb);
-            return winRateFromSlotData(map?.get(s) ?? [], sl, tp, sliceDirection);
+            const slotData = map?.get(s) ?? [];
+            const trials = trialsFromSlotData(slotData, sl, tp, sliceDirection);
+            const wr = slotData.length ? winRateFromSlotData(slotData, sl, tp, sliceDirection) : null;
+            const ev = trials.length ? trials.reduce((a, b) => a + b.settledPts, 0) / trials.length : null;
+            const tpFirst = trials.length ? trials.filter((x) => x.outcome === "target").length / trials.length * 100 : null;
+            const avgVol = slotData.length
+              ? slotData.reduce((sum, row) => sum + (metricFromBars(row.slotBars ?? [], "range") ?? 0), 0) / slotData.length
+              : null;
+            const minRequiredN = Math.max(3, Math.ceil(lb * 0.6));
+            const passed = wr !== null && ev !== null && slotData.length >= minRequiredN && wr >= sliceWinTh && ev > 0;
+            return { lb, n: slotData.length, wr, ev, tpFirst, avgVol, minRequiredN, passed };
           });
-          const closeRates = lookbackSlices.map((lb) => {
-            const map = lbMapBy.get(lb);
-            return closeDirectionRateFromSlotData(map?.get(s) ?? [], sliceDirection);
-          });
-          const vol = volBySlot.get(s);
-          const low = vol !== undefined && vol <= lowRiskCut;
-          const minWr = Math.min(...wrs.filter((x) => x !== null));
-          const pass = Number.isFinite(minWr) && minWr >= sliceWinTh;
-          const wrCells = wrs.map((w, idx) => {
-            const closeRate = closeRates[idx];
-            const wrText = w === null ? "-" : `${fmtNumber(w, 1)}%`;
-            return `<td style="background:${sliceHeat(w)}"><div class="matrix-main">${wrText}</div>${renderCloseRate(closeRate, sliceDirection)}</td>`;
+          return { s, statsByLookback };
+        });
+        const volUniverse = precomputed.flatMap((row) => row.statsByLookback.map((cell) => cell.avgVol)).filter((v) => v !== null && Number.isFinite(v));
+        const minVolCell = volUniverse.length ? Math.min(...volUniverse) : 0;
+        const maxVolCell = volUniverse.length ? Math.max(...volUniverse) : 1;
+        const volScalePct = (value) => {
+          if (value === null || value === undefined || !Number.isFinite(value)) return 0;
+          if (maxVolCell <= minVolCell) return 50;
+          return 12 + ((value - minVolCell) / (maxVolCell - minVolCell)) * 88;
+        };
+
+        const rowModels = precomputed.map((row) => {
+          const s = row.s;
+          const statsByLookback = row.statsByLookback;
+          const passCount = statsByLookback.filter((x) => x.passed).length;
+          const bestEv = statsByLookback.reduce((m, x) => Math.max(m, x.ev ?? -Infinity), -Infinity);
+          sliceSummary.push({ s, passCount, bestEv });
+          const wrCells = statsByLookback.map((cell) => {
+            const wrText = cell.wr === null ? "-" : `${fmtNumber(cell.wr, 1)}%`;
+            const evText = cell.ev === null ? "-" : `${fmtNumber(cell.ev, 1)} 點`;
+            const tpText = cell.tpFirst === null ? "-" : `${fmtNumber(cell.tpFirst, 1)}%`;
+            const nText = cell.n ? `N=${cell.n}` : "N=-";
+            const volText = cell.avgVol === null ? "-" : `${fmtNumber(cell.avgVol, 0)}點`;
+            const volPct = volScalePct(cell.avgVol);
+            const passBadge = cell.passed
+              ? `<div class="matrix-mini ok-tag">✓ 通過</div>`
+              : `<div class="matrix-mini no-tag">未過：N≥${cell.minRequiredN} / WR≥${sliceWinTh} / EV>0</div>`;
+            const active = state.selectedMatrix && state.selectedMatrix.slot === s && state.selectedMatrix.lookback === cell.lb ? " active" : "";
+            return `<td class="matrix-cell-btn${active}" data-slot="${s}" data-lookback="${cell.lb}" style="background:${sliceHeat(cell.ev, cell.wr, cell.tpFirst)}"><div class="matrix-main">${wrText}</div><div class="matrix-mini">EV ${evText}</div><div class="matrix-mini">TP先到 ${tpText}</div><div class="matrix-mini">${nText}</div>${passBadge}<div class="matrix-volbar"><div class="matrix-volbar-track"><div class="matrix-volbar-fill" style="width:${volPct}%;"></div></div><div class="matrix-volbar-text">${volText}</div></div></td>`;
           }).join("");
-          const passHtml = pass ? `<span class="ok-tag">是</span>` : `<span class="no-tag">否</span>`;
-          const volText = vol === undefined ? "-" : fmtNumber(vol, 2);
-          return `<tr><td>${slotLabel(s)}${low ? ' <span class="lowrisk-tag">低風險</span>' : ''}<span style="color:#8fb5cd;"> (Vol:${volText})</span></td>${wrCells}<td>${passHtml}</td></tr>`;
-        }).join("");
-        const note = `<div style="margin:6px 0;color:#9fc4de;">切面矩陣：direction=${sliceDirection}、SL/TP=${sl}/${tp}、門檻=${sliceWinTh}%、低風險門檻 Vol≤${fmtNumber(lowRiskCut, 2)}（與做多/做空矩陣一致）。每格第二行顯示該 lookback 的收盤方向比例。</div>`;
-        el("slice-matrix-wrap").innerHTML = note + `<div class="matrix-wrap"><table class="matrix-table"><thead><tr><th>Time Slot</th>${headers}<th>是否達標</th></tr></thead><tbody>${rowsHtml}</tbody></table></div>`;
+          const passRate = lookbackSlices.length ? Math.round((passCount / lookbackSlices.length) * 100) : 0;
+          const passHtml = passCount > 0
+            ? `<span class="ok-tag">${passRate}% (${passCount}/${lookbackSlices.length})</span>`
+            : `<span class="no-tag">0% (0/${lookbackSlices.length})</span>`;
+          return { s, passCount, bestEv, html: `<tr><td>${slotLabel(s, slotMinutes)}</td>${wrCells}<td>${passHtml}</td></tr>` };
+        });
+        const rowsHtml = rowModels.map((row) => row.html).join("");
+        const topFocus = sliceSummary.filter((x) => x.passCount > 0).slice(0, 3).map((x) => slotLabel(x.s, slotMinutes)).join("、") || "目前沒有明顯做多熱區";
+        const note = `<div style="margin:6px 0;color:#9fc4de;">做多切面矩陣依固定時序顯示。日盤從 08:45 起，夜盤從 15:00 起，區間長度目前為 <b>${slotMinutes} 分鐘</b>。固定只看 long，SL/TP=${sl}/${tp}，門檻=${sliceWinTh}%。每格依序顯示 <b>Win Rate / EV / TP-first / N</b>，最下方黃色波動條代表 <b>平均高低差</b>，條長只依這張矩陣內的相對高低自動縮放。</div><div style="margin:4px 0 8px;color:#dff2ff;">依時序優先關注：<b>${topFocus}</b></div>`;
+        el("slice-matrix-wrap").innerHTML = note + `<div class="matrix-wrap"><table class="matrix-table"><thead><tr><th>Time Slot</th>${headers}<th>通過率</th></tr></thead><tbody>${rowsHtml}</tbody></table></div>`;
+        bindMatrixCellClicks();
       }
 
       function collectTrials(slot, dayList, dirKey) {
         const trials = [];
         for (const d of dayList) {
           const bars = grouped.get(d) ?? [];
-          const slotBars = bars.filter((b) => inHalfHourSlot(minuteOfBar(b), slot));
+          const slotBars = bars.filter((b) => inTimeSlot(minuteOfBar(b), slot, slotMinutes));
           if (!slotBars.length) continue;
           const rest = bars.filter((b) => b.t > slotBars[slotBars.length - 1].t);
           trials.push(simulateSlotTrade(slotBars, rest, sl, tp, dirKey));
@@ -1670,12 +1807,12 @@
         if (bestSlot !== null && testDays.length) {
           const testT = collectTrials(bestSlot, testDays, direction);
           const testWR = testT.length ? (testT.filter((x) => x.rs > 0).length / testT.length) * 100 : null;
-          oosText = `樣本外檢驗：訓練期最佳時段 ${slotLabel(bestSlot)} (train N=${bestN}, WR=${fmtNumber(bestWR * 100, 2)}%)；測試期 N=${testT.length}, WR=${fmtNumber(testWR, 2)}%。`;
+          oosText = `樣本外檢驗：訓練期最佳時段 ${slotLabel(bestSlot, slotMinutes)} (train N=${bestN}, WR=${fmtNumber(bestWR * 100, 2)}%)；測試期 N=${testT.length}, WR=${fmtNumber(testWR, 2)}%。`;
         }
       }
 
       const sigRows = [
-        ["檢定標的", `${slotLabel(slotStart)} | ${direction} | N=${selN}`, "目前以此時段與方向做統計檢定。"],
+        ["檢定標的", `${slotLabel(slotStart, slotMinutes)} | ${direction} | N=${selN}`, "目前以此時段與方向做統計檢定。"],
         [
           "勝率與95%CI",
           `${fmtNumber(selWR, 2)}%（${fmtNumber(wrLo === null ? null : wrLo * 100, 2)}% ~ ${fmtNumber(wrHi === null ? null : wrHi * 100, 2)}%）`,
@@ -1686,8 +1823,12 @@
         ["平均報酬 bootstrap 95%CI", `${fmtNumber(retLo, 4)}% ~ ${fmtNumber(retHi, 4)}%`, "整段皆為正值通常較有利。"],
         ["樣本外檢驗", oosText, "觀察訓練與測試是否一致，避免過度擬合。"],
       ];
-      const sigHtml = sigRows.map((r) => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join("");
-      el("sig-lines").innerHTML = `<table class="stat-table"><thead><tr><th>指標</th><th>數據</th><th>判讀</th></tr></thead><tbody>${sigHtml}</tbody></table>`;
+      if (hasDetailSelection) {
+        const sigHtml = sigRows.map((r) => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join("");
+        el("sig-lines").innerHTML = `<table class="stat-table"><thead><tr><th>指標</th><th>數據</th><th>判讀</th></tr></thead><tbody>${sigHtml}</tbody></table>`;
+      } else {
+        el("sig-lines").innerHTML = "請先點選上方矩陣的一格。";
+      }
 
       const ts = new Date();
       const hh = String(ts.getHours()).padStart(2, "0");
@@ -1709,6 +1850,17 @@
       runAnalysis();
     }
 
+    function bindMatrixCellClicks() {
+      document.querySelectorAll("#slice-matrix-wrap td[data-slot][data-lookback]").forEach((cell) => {
+        cell.addEventListener("click", () => {
+          const slot = Number(cell.getAttribute("data-slot"));
+          const lb = Number(cell.getAttribute("data-lookback"));
+          state.selectedMatrix = { slot, lookback: lb };
+          runAnalysis("matrix");
+        });
+      });
+    }
+
     async function loadData() {
       const response = await fetch(APP.dataFile, { cache: "no-store" });
       if (!response.ok) {
@@ -1717,7 +1869,6 @@
       const payload = await response.json();
       state.rawBars = payload.bars ?? [];
       refreshAnchorDayOptions();
-      refreshSlotOptions();
       if (state.rawBars.length) {
         const firstTs = state.rawBars[0].t;
         const lastTs = state.rawBars[state.rawBars.length - 1].t;
@@ -1751,12 +1902,17 @@
       el("analyze-btn").addEventListener("click", () => runAnalysis("manual"));
       el("session-select")?.addEventListener("change", () => {
         refreshSlotOptions();
+        state.selectedMatrix = null;
         runAnalysis("auto");
       });
-      ["anchor-day-select", "slot-select", "lookback-select", "direction-select", "vol-select", "sl-select", "tp-select", "rank-sort-select"].forEach((id) => {
+      ["anchor-day-select", "sl-select", "tp-select"].forEach((id) => {
         el(id)?.addEventListener("change", () => runAnalysis("auto"));
       });
-      ["slice-lookbacks-input", "slice-win-threshold-select", "slice-direction-select"].forEach((id) => {
+      el("slot-minutes-select")?.addEventListener("change", () => {
+        state.selectedMatrix = null;
+        runAnalysis("auto");
+      });
+      ["slice-lookbacks-input", "slice-win-threshold-select"].forEach((id) => {
         el(id)?.addEventListener("change", () => runAnalysis("auto"));
       });
       el("slice-refresh-btn")?.addEventListener("click", () => runAnalysis("manual"));

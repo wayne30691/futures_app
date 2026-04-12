@@ -1,0 +1,6 @@
+# Local raw market data should stay on the developer machine.
+raw/
+
+# Python caches
+__pycache__/
+*.py[cod]
